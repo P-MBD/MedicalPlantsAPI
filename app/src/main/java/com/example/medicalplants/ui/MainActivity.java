@@ -6,6 +6,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -14,6 +15,7 @@ import com.example.medicalplants.adapter.MedicalPlantAdapter;
 import com.example.medicalplants.model.MedicalPlant;
 import com.example.medicalplants.viewmodel.MedicalPlantViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -29,18 +31,23 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new MedicalPlantAdapter();
+
+        // آداپتر با لیست خالی مقداردهی اولیه می‌شود
+        adapter = new MedicalPlantAdapter(this, new ArrayList<>());
         recyclerView.setAdapter(adapter);
 
-        viewModel = new MedicalPlantViewModel();
+        // مقداردهی ViewModel
+        viewModel = new ViewModelProvider(this).get(MedicalPlantViewModel.class);
+
+        // مشاهده تغییرات در داده‌ها
         viewModel.getMedicalPlants().observe(this, new Observer<List<MedicalPlant>>() {
             @Override
             public void onChanged(List<MedicalPlant> medicalPlants) {
-                if (medicalPlants != null) {
+                if (medicalPlants != null && !medicalPlants.isEmpty()) {
                     adapter.setMedicalPlants(medicalPlants);
                 } else {
                     Toast.makeText(MainActivity.this, "Failed to load data", Toast.LENGTH_SHORT).show();
-                    Log.e(TAG, "Failed to load data");
+                    Log.e(TAG, "No data to display.");
                 }
             }
         });
